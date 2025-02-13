@@ -1,16 +1,14 @@
 # r3edge-repo-template
 
-Ce dépôt **r3edge-repo-template** sert de modèle pour structurer les projets de l'écosystème **r3edge**. Il peut être utilisé via la fonctionnalité **"Use this template"** de GitHub.
+Bienvenue sur **r3edge-zk-client**. Ce dépôt contient le code d'un client r3edge-engine basé sur le framework [ZK](https://www.zkoss.org/).
 
 ## 📌 Usage
 
 1. **Cloner le dépôt** :  
    ```bash
-   git clone https://github.com/dsissoko/r3edge-repo-template.git
-   cd r3edge-repo-template
+   git clone https://github.com/dsissoko/r3edge-zk-client.git
+   cd r3edge-zk-client
    ```
-2. **Ou utiliser le template** :  
-   Cliquez sur **"Use this template"** pour créer un nouveau projet basé sur cette structure.
 
 ---
 
