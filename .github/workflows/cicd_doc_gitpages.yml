@@ -1,0 +1,58 @@
+name: Markdown CICD with Jekyll to GITPAGES
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**']
+  pull_request:
+    branches: [main]
+    paths: ['docs/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  set-plan:
+    runs-on: ubuntu-latest
+    outputs:
+      pageEnabled: ${{ steps.setplan.outputs.pageEnabled }}
+    steps:
+      - name: Set Page enable
+        id: setplan
+        run: echo "::set-output name=pageEnabled::true"
+
+  build:
+    needs: set-plan
+    if: ${{ needs.set-plan.outputs.pageEnabled == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    needs: [set-plan, build]
+    if: ${{ needs.set-plan.outputs.pageEnabled == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
