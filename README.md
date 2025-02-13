@@ -34,4 +34,4 @@ Pour toute question, contactez-nous à [hello@r3edge.com](mailto:hello@r3edge.co
 
 ## 🏆 Badges
 
-[![Markdown CICD with Jekyll to GITPAGES](https://github.com/dsissoko/r3edge-repo-template/actions/workflows/cicd_doc_gitpages.yml/badge.svg)](https://github.com/dsissoko/r3edge-repo-template/actions/workflows/cicd_doc_gitpages.yml)
+[![Markdown CICD with Jekyll to GITPAGES](https://github.com/dsissoko/r3edge-zk-client/actions/workflows/cicd_doc_gitpages.yml/badge.svg)](https://github.com/dsissoko/r3edge-zk-client/actions/workflows/cicd_doc_gitpages.yml)
