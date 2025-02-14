@@ -311,3 +311,4 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/eclipse,java,python,gradle,visualstudiocode
+/gradle.properties
