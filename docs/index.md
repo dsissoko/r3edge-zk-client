@@ -2,7 +2,12 @@
 
 Bienvenue dans la documentation de **<r3edge-repo-template>**. Cette page sert de point de départ pour la documentation détaillé du dépôt.
 
-ajouter la version ici !!!
+{% if site.data.build_info %}
+**Version :** {{ site.data.build_info.version }}
+**Build Date :** {{ site.data.build_info.buildDate }}
+{% else %}
+Aucune information de build n'est disponible.
+{% endif %}
 
 
 ---

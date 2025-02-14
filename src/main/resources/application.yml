@@ -1,0 +1,28 @@
+# src/main/resources/application.yml
+server:
+  port: 3000
+
+  # Okta 
+okta:
+  oauth2:
+    issuer: https://dev-s3ninsxc3kbtohcd.us.auth0.com/
+    client-id: 75ThExw142MoAtsgwDy0qZx0Zn9G7JQU
+    client-secret: dzJkWwD-B8_KmrwbPVlA4lPbA5FxxFFPESo9iJWld8w3_XCfBDjsMeLSOlKvb7R4
+  
+# Log levels
+logging:
+  file:
+     name: logs/r3edge-test1.log # Chemin du fichier de log
+  logback:
+    rollingpolicy:
+      file-name-pattern: logs/r3edge-test1-%d{yyyy-MM-dd}.%i.log # Fichiers de log rotatifs
+      max-file-size: 10MB # Taille maximale pour chaque fichier
+      total-size-cap: 50MB # Taille maximale cumulée pour tous les fichiers de log
+      max-history: 6 # Ne conserve aucun fichier historique  
+  level:
+    root: ERROR # Niveau par défaut pour tous les logs (WARN pour réduire le bruit)
+    #"[org.springframework.cloud.config]": INFO # Réduit les logs détaillés pour Spring Cloud Config
+    #"[org.springframework.aop: DEBUG]": DEBUG
+    #"[org.springframework.boot]": WARN
+    #"[org.springframework.cloud.stream]": WARN
+    #"[org.apache.kafka]": WARN

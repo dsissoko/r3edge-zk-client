@@ -1,0 +1,161 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
+}
+
+group = 'com.r3edge'
+version = 'v0.0.1'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext {
+    set('springCloudVersion', "2024.0.0")
+    zkSpringBootVersion = '3.2.7'
+    zkThemeVersion = '10.0.0'
+    //zkVersion = '10.0.0'
+    //zkspringbootVersion = '3.2.6.1'
+    //zkspringbootVersion = '3.0.0'
+    //zkVersion = '9.6.5'
+    //zkVersion = '8.6.0'
+    //zkVersion = '9.6.0-jakarta'
+    //zkEvalVersion = '9.6.0-jakarta-Eval'
+    //zatsVersion = '3.0.0'    
+    //zkVersion = '10.0.0-jakarta.FL.20230407-Eval'
+    //zkVersion = '10.0.0.FL.20230407-Eval'
+    //zkVersion='9.6.0-jakarta-Eval'
+    //zkchartsversion = '10.3.3.0-Eval'
+    //zkchartsversion='10.3.3.0-FL-20230410-Eval'
+    //zkchartsversion = '10.2.1.0-FL-20220930-Eval'
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:2.12.0"
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://jitpack.io' }
+    // https://www.zkoss.org/wiki/ZK_Installation_Guide/Maven_Setup
+    maven { url "https://mavensync.zkoss.org/maven2" }
+    maven { url "https://mavensync.zkoss.org/eval" }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation ("org.zkoss.zkspringboot:zkspringboot-starter:${zkSpringBootVersion}")
+    // Attention PE mais contient des CE
+    //implementation "org.zkoss.themepack:wcag_c:10.1.0-Eval"
+    // Attention PE, voir: https://mavensync.zkoss.org/eval/org/zkoss/theme/ 
+    //implementation "org.zkoss.theme:breeze:10.0.1.1-Eval"
+    // CE, voir: https://mavensync.zkoss.org/maven2/org/zkoss/theme/
+    //implementation "org.zkoss.theme:breeze:${zkThemeVersion}"
+    //implementation "org.zkoss.theme:sapphire:${zkThemeVersion}"   
+    implementation 'com.okta.spring:okta-spring-boot-starter:3.0.7'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'    
+    implementation "org.springframework.boot:spring-boot-starter-security"
+}
+
+processResources {
+    filesMatching('application.properties') {
+        expand(project.properties)
+    }
+}
+
+processResources {
+    filesMatching("application.properties") {
+        expand(
+            version: project.version ?: 'SNAPSHOT'
+        )
+    }
+}
+
+springBoot {
+  buildInfo()
+}
+
+jib {
+    allowInsecureRegistries = false
+    from {
+        image = "openjdk:21-slim"
+        platforms {
+            platform {
+              architecture = 'amd64'
+              os = 'linux'
+            }
+            platform {
+              architecture = 'arm64'
+              os = 'linux'
+            }      
+          }     
+    }
+    to {
+        image = "dsissoko/r3edge"
+        //${project.name}:${project.version}
+        tags = [project.name + '-' + project.version, project.name + '-latest']
+        auth {
+           username = project.findProperty('DOCKERHUB_USERNAME') ?: System.getenv('DOCKERHUB_USERNAME')
+           password = project.findProperty('DOCKERHUB_PASSWORD') ?: System.getenv('DOCKERHUB_PASSWORD')
+        }
+    }
+    container {
+        jvmFlags = ['-XX:+UseContainerSupport']
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'r3edge.com',
+            'Built-By': System.getProperty('user.name'),
+            'Built-Date': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            'Build-Jdk': System.getProperty('java.version')
+        )
+    }
+}
+
+task generateBuildInfo {
+    doLast {
+        def buildDate = new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        def commit = 'git rev-parse --short HEAD'.execute(null, rootDir).text.trim()
+        def content = """\
+version: ${project.version}
+buildDate: ${buildDate}
+commit: ${commit}
+"""
+        def outputDir = file("docs/_data")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        def outputFile = new File(outputDir, "build_info.yml")
+        outputFile.text = content
+        println "Fichier build_info.yml généré dans ${outputFile.absolutePath}"
+    }
+}
+
+build.dependsOn generateBuildInfo
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

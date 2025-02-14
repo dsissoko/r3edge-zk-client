@@ -1,0 +1,122 @@
+<window title="Item List" width="800px" border="normal">
+    <hlayout valign="middle">
+        Name :
+        <textbox id="itemName" constraint="no empty" />
+        <button label="Add Item" onClick="addItem(itemName.getValue())" />
+        <button label="Delete Item" onClick="deleteItem(itemList.getSelectedItem())" />
+    </hlayout>
+
+    <groupbox>
+        <caption>
+            Total Items : <label id="itemCount"/>
+        </caption>
+        <listbox id="itemList" rows="5">
+            <listhead>
+                <listheader label="Item" width="65%" />
+                <listheader label="Actions" width="35%" />
+            </listhead>
+        </listbox>
+    </groupbox>
+
+    <zscript><![CDATA[
+        import org.zkoss.zk.ui.event.Event;
+        import org.zkoss.zk.ui.event.EventListener;
+        import org.zkoss.zk.ui.event.Events;
+        import org.zkoss.zul.Button;
+        import org.zkoss.zul.Hlayout;
+        import org.zkoss.zul.Listcell;
+        import org.zkoss.zul.Listitem;
+
+        void addItem(String name){
+            Listitem item = new Listitem();
+            item.appendChild(new Listcell(name));
+
+            // Création d'un layout horizontal pour les boutons
+            Hlayout buttonLayout = new Hlayout();
+            buttonLayout.setSpacing("5px");
+
+            // Bouton Start
+            Button startButton = new Button("Start");
+            startButton.setAttribute("item", item);
+            startButton.addEventListener(Events.ON_CLICK, new EventListener() {
+                public void onEvent(Event event) throws Exception {
+                    startItem((Listitem) event.getTarget().getAttribute("item"));
+                }
+            });
+
+            // Bouton Stop
+            Button stopButton = new Button("Stop");
+            stopButton.setDisabled(true);
+            stopButton.setAttribute("item", item);
+            stopButton.addEventListener(Events.ON_CLICK, new EventListener() {
+                public void onEvent(Event event) throws Exception {
+                    stopItem((Listitem) event.getTarget().getAttribute("item"));
+                }
+            });
+
+            // Bouton Delete
+            Button deleteButton = new Button("Delete");
+            deleteButton.setAttribute("item", item);
+            deleteButton.addEventListener(Events.ON_CLICK, new EventListener() {
+                public void onEvent(Event event) throws Exception {
+                    deleteItem((Listitem) event.getTarget().getAttribute("item"));
+                }
+            });
+
+            // Ajout des boutons dans le layout horizontal
+            buttonLayout.appendChild(startButton);
+            buttonLayout.appendChild(stopButton);
+            buttonLayout.appendChild(deleteButton);
+
+            // Ajout du layout dans la colonne des actions
+            Listcell actionCell = new Listcell();
+            actionCell.appendChild(buttonLayout);
+
+            // Association des boutons à l'item
+            item.setAttribute("startButton", startButton);
+            item.setAttribute("stopButton", stopButton);
+
+            item.appendChild(actionCell);
+            itemList.appendChild(item);
+            itemList.setSelectedItem(item);
+            updateItemCount();
+        }
+
+        void deleteItem(Listitem item){
+            if (item != null) {
+                itemList.removeChild(item);
+                updateItemCount();
+            } else {
+                alert("Please select an item first!");
+            }
+        }
+
+        void startItem(Listitem item){
+            if (item != null) {
+                Button startButton = (Button) item.getAttribute("startButton");
+                Button stopButton = (Button) item.getAttribute("stopButton");
+
+                startButton.setDisabled(true);
+                stopButton.setDisabled(false);
+                alert("Started: " + item.getFirstChild().getLabel());
+            }
+        }
+
+        void stopItem(Listitem item){
+            if (item != null) {
+                Button startButton = (Button) item.getAttribute("startButton");
+                Button stopButton = (Button) item.getAttribute("stopButton");
+
+                startButton.setDisabled(false);
+                stopButton.setDisabled(true);
+                alert("Stopped: " + item.getFirstChild().getLabel());
+            }
+        }
+
+        void updateItemCount(){
+            itemCount.setValue(Integer.toString(itemList.getItemCount()));
+        }
+
+        updateItemCount();
+    ]]></zscript>
+</window>
